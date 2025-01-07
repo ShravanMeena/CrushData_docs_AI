@@ -30,6 +30,12 @@ const generateResponse = async (message, history = []) => {
     const embeddingResponse = await embeddingModel.embedContent({
       content: { parts: [{ text: message }] },
     });
+
+    if (!embeddingResponse || !embeddingResponse.embedding) {
+      console.error("❌ Error: Embedding generation failed.");
+      return "**⚠️ Failed to generate embeddings for your query. Please try again later.**";
+    }
+
     const embedding = embeddingResponse.embedding.values;
 
     // ✅ Perform a Vector Search in Pinecone
@@ -39,42 +45,42 @@ const generateResponse = async (message, history = []) => {
       includeMetadata: true,
     });
 
-    // ✅ Handle No Matches in the Database
+    // ✅ Validate Pinecone Response
+    if (!queryResults || !queryResults.matches) {
+      console.error("❌ Error: Pinecone query returned an invalid response.");
+      return "**⚠️ Error retrieving information from the database. Please try again.**";
+    }
+
+    // ✅ Handle No Matches
     if (queryResults.matches.length === 0) {
       return `**🤖 I couldn't find specific information related to your query in our documentation. Could you clarify your question or provide more details?**`;
     }
 
-    // ✅ Prepare Context for Gemini (More Engaging & Focused Prompt)
+    // ✅ Prepare Context for Gemini with Clear Instructions
     const matchedTexts = queryResults.matches
       .map((match) => match.metadata.text)
       .join("\n\n");
 
     let prompt = `
-       ${crustExpert}
 
-        **📚 Here Knowledge Base:**  
-        ${matchedTexts}
+       
+     ${crustExpert}
 
-        **📌 User's Query:**  
-        ${message}
+      **📖 Knowledge Base:**  
+      ${matchedTexts}
 
-        **💡 Chat History for Context:**  
-        ${history.map((item) => `${item.role}: ${item.message}`).join("\n")}
+      **📌 User's Query:**  
+      ${message}
 
-        **✅ Key Instructions for Your Response:**  
-        - **Use Bullet Points:** for step-by-step instructions.  
-        - **Markdown Usage:** Format responses with proper headings, bullet points, and code blocks when providing code examples.  
-        - **Stay Focused:** If the query is unrelated to docus, politely ask for clarification.  
-        - and give if needed like example req,response,summary and this type of fileds so it can more readable
-        **Now, provide a professional and human-like response based on the above knowledge.**
-        `;
+      **💡 Chat History:**  
+      ${history.map((item) => `${item.role}: ${item.message}`).join("\n")}
 
-    // ✅ Special Handling for Casual Messages (Polite Engagement)
-    if (
-      message.toLowerCase().trim() === "hey" ||
-      message.toLowerCase().trim() === "hello"
-    ) {
-      prompt = `You are a friendly AI assistant. The user greeted you with "${message}". Respond politely and engage casually, but keep it professional.`;
+      **Provide a clear, professional response with code examples where applicable.**
+      `;
+
+    // ✅ Special Handling for Casual Greetings
+    if (["hey", "hello","Hi"].includes(message.toLowerCase().trim())) {
+      prompt = `You are a friendly AI assistant. The user greeted you with "${message}". Respond politely and engage casually while staying professional.`;
     }
 
     // ✅ Generate the Gemini Response Using the Enhanced Prompt
@@ -83,13 +89,68 @@ const generateResponse = async (message, history = []) => {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
     });
 
+    if (!result || !result.response) {
+      console.error("❌ Error: Gemini API did not return a valid response.");
+      return "**⚠️ Failed to generate a response. Please try again later.**";
+    }
+
     let finalResponse = result.response.text();
+
+    // ✅ Validate API Call Example in Response (if present)
+    if (finalResponse.includes("curl") || finalResponse.includes("fetch") ||  finalResponse.includes("bash")) {
+      try {
+        console.log("✅ Validating API call...");
+        const apiTestResult = await validateApiCall(finalResponse);
+        if (!apiTestResult.success) {
+          finalResponse +=
+            "\n\n**⚠️ Note:** The API call mentioned above could not be validated. Please review the API endpoint before using.";
+        }
+      } catch (error) {
+        console.warn("⚠️ Error while validating API call:", error.message);
+      }
+    }
 
     // ✅ Return the Clear, Contextual Response
     return finalResponse;
   } catch (error) {
     console.error("❌ Error generating response:", error.message);
     return "**⚠️ I'm facing an issue processing your request. Please try again later.**";
+  }
+};
+
+/**
+ * ✅ API Call Validator (Simulates API Request Validation)
+ * @param {string} responseText - The generated response text containing an API request.
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+const validateApiCall = async (responseText) => {
+  const apiUrlMatch = responseText.match(/https?:\/\/[^\s]+/);
+
+  console.log(apiUrlMatch, "apiUrlMatchapiUrlMatch");
+
+  if (!apiUrlMatch) {
+    return {
+      success: false,
+      message: "No valid API endpoint found in the response.",
+    };
+  }
+
+  const apiUrl = apiUrlMatch[0];
+  try {
+    const testResponse = await fetch(apiUrl);
+    if (testResponse.ok) {
+      return { success: true, message: "API endpoint is valid." };
+    } else {
+      return {
+        success: false,
+        message: `API returned error: ${testResponse.status}`,
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: `Error during API validation: ${error.message}`,
+    };
   }
 };
 

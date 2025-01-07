@@ -72,6 +72,7 @@ const storeEmbeddingsInPinecone = async (embeddings, chunks) => {
         const index = pineconeClient.Index(indexName);
         console.log("⏳ Storing multiple embeddings in Pinecone...");
 
+        
         const upsertData = embeddings.map((embedding, idx) => ({
             id: `data-${Date.now()}-${idx}`,
             values: embedding,
