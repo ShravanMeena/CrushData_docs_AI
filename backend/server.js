@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 8000;
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use('/health-check', (req,res) =>{
+app.use('/', (req,res) =>{
     return res.send("Health-Check")
 });
 
