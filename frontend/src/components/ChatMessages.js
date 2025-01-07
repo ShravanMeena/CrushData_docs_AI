@@ -48,48 +48,60 @@ const ChatMessages = ({ messages, isTyping }) => {
               components={{
                 code({ node, inline, className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || "");
+
+                  // ✅ Prevent Overflow and Fix Code Wrapping
                   return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={vscDarkPlus}
-                      language={match[1]}
-                      PreTag="div"
-                      {...props}
+                    <div
+                    className="max-w-7xl "
+                      style={{
+                        overflowX: "auto", // Enable horizontal scroll if needed
+                        maxWidth: "100%",   // Prevent overflowing from the bubble
+                        whiteSpace: "pre-wrap", // Break long lines properly
+                        wordWrap: "break-word", // Prevent content from going outside
+                      }}
                     >
-                      {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
+                      <SyntaxHighlighter
+                        style={vscDarkPlus}
+                        language={match[1]}
+                        PreTag="div"
+                        {...props}
+                      >
+                        {String(children).trim()}
+                      </SyntaxHighlighter>
+                    </div>
                   ) : (
-                    <code className="bg-primary border border-gray-700 block my-4 whitespace-pre-wrap break-words overflow-auto max-w-full py-4 px-4 rounded-lg text-xs">
-                      {" "}
+                    <code
+                      className="bg-primary border border-gray-700 block whitespace-pre-wrap break-words overflow-auto max-w-full py-2 px-4 rounded-lg text-xs"
+                    >
                       {children}
                     </code>
                   );
                 },
                 a: ({ node, ...props }) => (
-                  <a className="text-accent underline" {...props}>
+                  <a className="text-accent underline break-words" {...props}>
                     {props.children}
                   </a>
                 ),
                 p: ({ children }) => (
-                  <p className="text-sm mb-2 text-gray-100  font-light ">
+                  <p className="text-sm text-gray-100 mb-2 font-light break-words">
                     {children}
                   </p>
                 ),
                 h3: ({ children }) => (
-                  <p className="text-gray-100  mt-4 mb-1 font-medium text-lg ">
+                  <p className="text-lg text-gray-100 font-medium mt-4 mb-1 break-words">
                     {children}
                   </p>
                 ),
-                h6: ({ children }) => (
-                  <p className="text-accent  text-lg ">{children}</p>
-                ),
                 strong: ({ children }) => (
-                  <span className="text-gray-100  font-medium  mb-2 ml-4 py-2 text-sm">
+                  <span className="text-gray-100 font-semibold break-words">
                     {children}
                   </span>
                 ),
-                ul: ({ children }) => <ul className="pl-6 ">{children}</ul>,
+                ul: ({ children }) => (
+                  <ul className="list-disc pl-6 break-words">{children}</ul>
+                ),
                 li: ({ children }) => (
-                  <li className="list-decimal mt-2">{children}</li>
+                  <li className="list-item break-words">{children}</li>
                 ),
               }}
             />
