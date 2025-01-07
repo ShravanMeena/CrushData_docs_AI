@@ -11,6 +11,11 @@
 # production
 /build
 
+.env
+/.env
+./.env
+/Users/poonam/Desktop/CRUSTDATA/backend/config/serviceAccountKey.json
+
 # misc
 .DS_Store
 .env.local

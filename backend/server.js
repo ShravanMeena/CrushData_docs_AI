@@ -13,6 +13,11 @@ const PORT = process.env.PORT || 8000;
 app.use(cors());
 app.use(bodyParser.json());
 
+app.use('/health-check', (req,res) =>{
+    return res.send("Health-Check")
+});
+
+
 // ✅ Apply Token Verification Globally (Except for Auth Routes)
 app.use('/api/v1/auth', authRoutes);  // Auth routes do not require token validation
 app.use(verifyToken);  // ✅ Secure all other routes after this line

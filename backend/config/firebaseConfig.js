@@ -10,6 +10,7 @@ if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
         // projectId: serviceAccount.project_id,
+          databaseURL: "https://public-app-1ff35-default-rtdb.asia-southeast1.firebasedatabase.app"
     });
 }
 
