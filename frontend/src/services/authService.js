@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://3e63-2401-4900-881a-1d05-f005-506d-ef1a-a90a.ngrok-free.app/api/v1"
-// process.env.REACT_APP_API_URL ;
+const API_URL = process.env.REACT_APP_API_URL
 
 /**
  * ✅ Fetch Firebase Token Securely
