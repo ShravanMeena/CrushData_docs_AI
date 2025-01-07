@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: "Inter", serif;
+  font-optical-sizing: auto;
+}
+body {
+  font-family: "Inter", serif;
+  font-optical-sizing: auto;
+}

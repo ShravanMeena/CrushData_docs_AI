@@ -1,0 +1,21 @@
+{
+  "name": "suraj__server",
+  "version": "1.0.0",
+  "description": "![ScreenShot](https://github.com/ShravanMeena/Knowledge_Base_Gemini/blob/main/glimpses/level_1.png?raw=true)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./backend/server.js",
+    "dev": "concurrently \"nodemon ./backend/server.js\" \"cd frontend && npm start\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-shravanmeena:ShravanMeena/Knowledge_Base_Gemini.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}
