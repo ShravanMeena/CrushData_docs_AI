@@ -58,7 +58,8 @@ const ChatMessages = ({ messages, isTyping }) => {
                       {String(children).replace(/\n$/, "")}
                     </SyntaxHighlighter>
                   ) : (
-                    <code className="bg-gray-600 py-1 px-4 rounded-lg text-xs">
+                    <code className="bg-primary border border-gray-700 block my-4 whitespace-pre-wrap break-words overflow-auto max-w-full py-4 px-4 rounded-lg text-xs">
+                      {" "}
                       {children}
                     </code>
                   );
@@ -79,19 +80,17 @@ const ChatMessages = ({ messages, isTyping }) => {
                   </p>
                 ),
                 h6: ({ children }) => (
-                    <p className="text-accent  text-lg ">
-                      {children}
-                    </p>
-                  ),
+                  <p className="text-accent  text-lg ">{children}</p>
+                ),
                 strong: ({ children }) => (
                   <span className="text-gray-100  font-medium  mb-2 ml-4 py-2 text-sm">
                     {children}
                   </span>
                 ),
-                ul: ({ children }) => (
-                  <ul className="pl-6 ">{children}</ul>
+                ul: ({ children }) => <ul className="pl-6 ">{children}</ul>,
+                li: ({ children }) => (
+                  <li className="list-decimal mt-2">{children}</li>
                 ),
-                li: ({ children }) => <li className="list-decimal mt-2">{children}</li>,
               }}
             />
             {/* ✅ Timestamp Display */}
